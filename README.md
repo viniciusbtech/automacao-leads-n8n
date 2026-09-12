@@ -2,6 +2,20 @@
 <img width="1330" height="543" alt="image" src="https://github.com/user-attachments/assets/f370cbd9-606c-451f-8f19-7986d10946b2" />
 
 
+Entrada
+
+  nome: Carlos
+  telefone: 86988887777,
+  mensagem: Boa tarde. Estou procurando uma casa na zona leste de Teresina para comprar. Tenho até 700 mil e queria uma casa com pelo menos 3 quartos. Se tiver alguma disponível gostaria de visitar sábado.
+
+Saída
+
+
+
+<img width="555" height="490" alt="image" src="https://github.com/user-attachments/assets/35403a6d-b31f-4216-bfd0-6612fd7bda55" />
+
+
+
 Automação inteligente para triagem, classificação e gerenciamento de leads imobiliários utilizando **n8n, Google Gemini, Google Sheets e Gmail**.
 
 O projeto simula um fluxo real de atendimento de uma imobiliária, automatizando desde o recebimento da mensagem de um potencial cliente até o registro das informações e a notificação de leads considerados prioritários.
