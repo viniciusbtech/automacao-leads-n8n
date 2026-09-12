@@ -1,0 +1,393 @@
+{
+  "name": "LeadFlow AI - Triagem de Leads",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-imobiliario",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ffd1b09a-29f9-49e3-ae46-2fb1fba41747",
+      "name": "Webhook",
+      "webhookId": "182859d7-5ceb-4ff8-94ee-4f035b3b1174"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é responsável pela triagem inicial de leads de uma imobiliária.\n\nAnalise os dados do potencial cliente abaixo:\n\nNome: {{ $json.body.nome }}\n\nTelefone: {{ $json.body.telefone }}\n\nMensagem: {{ $json.body.mensagem }}\n\nExtraia as seguintes informações:\n\n- finalidade: se o cliente deseja Compra, Aluguel ou não informou.\n- tipo_imovel: Casa, Apartamento, Terreno, Comercial ou outro tipo mencionado.\n- localizacao: bairro, região ou cidade mencionada.\n- orcamento: valor máximo informado pelo cliente.\n- quartos: quantidade de quartos solicitada.\n- intencao: principal intenção demonstrada pelo cliente.\n- prioridade: Alta, Média ou Baixa.\n- resumo: resumo curto do interesse do cliente.\n\nUtilize estas regras para prioridade:\n\nAlta:\n- deseja visitar um imóvel;\n- demonstra intenção clara de compra ou aluguel;\n- informa orçamento e características desejadas;\n- demonstra urgência.\n\nMédia:\n- demonstra interesse real;\n- informou algumas características, mas ainda está pesquisando;\n- não demonstra urgência imediata.\n\nBaixa:\n- mensagem genérica;\n- apenas curiosidade;\n- poucas informações sobre o que procura.\n\nNão invente informações que não estejam presentes na mensagem.\n\nQuando uma informação textual não estiver disponível, utilize \"Não informado\".\n\nPara orçamento ou quantidade de quartos não informados, utilize 0.",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": []
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f7863a47-afd6-41d5-a911-4dc0d64399a4",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        224
+      ],
+      "id": "78118b0a-527a-4f31-be9f-0622585c6a68",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "T5FvOd2TLEFGbHAI",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"finalidade\": \"Compra\",\n  \"tipo_imovel\": \"Casa\",\n  \"localizacao\": \"Zona Leste de Teresina\",\n  \"orcamento\": 700000,\n  \"quartos\": 3,\n  \"intencao\": \"Agendar visita\",\n  \"prioridade\": \"Alta\",\n  \"resumo\": \"Cliente procura casa na Zona Leste de Teresina, com orçamento de até R$ 700 mil, pelo menos 3 quartos e interesse em visita no sábado.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        224
+      ],
+      "id": "5730060a-e4ae-4137-bb5f-2547cc955042",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1xs2sHzix9zTi0aiOWqPhL-jQJjUi6zQKReB--qYoBk0",
+          "mode": "list",
+          "cachedResultName": "LeadFlow AI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xs2sHzix9zTi0aiOWqPhL-jQJjUi6zQKReB--qYoBk0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xs2sHzix9zTi0aiOWqPhL-jQJjUi6zQKReB--qYoBk0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data ": "={{ $now }}",
+            "Nome ": "={{ $('Webhook').item.json.body.nome }}",
+            "Telefone ": "={{ $('Webhook').item.json.body.telefone }}",
+            "Finalidade ": "={{ $json.output.finalidade }}",
+            "Tipo de imóvel": "={{ $json.output.tipo_imovel }}",
+            "Localização ": "={{ $json.output.localizacao }}",
+            "Orçamento ": "={{ $json.output.orcamento }}",
+            "Quartos ": "={{ $json.output.quartos }}",
+            "Intenção ": "={{ $json.output.intencao }}",
+            "Prioridade ": "={{ $json.output.prioridade }}",
+            "Status": "Novo",
+            "Resumo ": "={{ $json.output.resumo }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data ",
+              "displayName": "Data ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nome ",
+              "displayName": "Nome ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Telefone ",
+              "displayName": "Telefone ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Finalidade ",
+              "displayName": "Finalidade ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tipo de imóvel",
+              "displayName": "Tipo de imóvel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Localização ",
+              "displayName": "Localização ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Orçamento ",
+              "displayName": "Orçamento ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Quartos ",
+              "displayName": "Quartos ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Intenção ",
+              "displayName": "Intenção ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Prioridade ",
+              "displayName": "Prioridade ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Resumo ",
+              "displayName": "Resumo ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        592,
+        0
+      ],
+      "id": "d8a271c8-3530-4cf2-91be-e4ffe354a8d7",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dcfKjZY12clelXY6",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f77ce870-ce80-4781-a832-2cf6eed84a48",
+              "leftValue": "={{ $('Basic LLM Chain').item.json.output.prioridade }}",
+              "rightValue": "Alta",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        816,
+        0
+      ],
+      "id": "fbabe9d2-78f1-4849-b9a0-e80c9170e8f8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "viniciusbtech@gmail.com",
+        "subject": "=🚨 Novo lead prioritário - {{ $('Webhook').item.json.body.nome }}",
+        "message": "=NOVO LEAD DE ALTA PRIORIDADE  Cliente: {{ $('Webhook').item.json.body.nome }}  Telefone: {{ $('Webhook').item.json.body.telefone }}  Finalidade: {{ $('Basic LLM Chain').item.json.output.finalidade }}  Tipo de imóvel: {{ $('Basic LLM Chain').item.json.output.tipo_imovel }}  Localização: {{ $('Basic LLM Chain').item.json.output.localizacao }}  Orçamento: R$ {{ $('Basic LLM Chain').item.json.output.orcamento }}  Quartos: {{ $('Basic LLM Chain').item.json.output.quartos }}  Intenção: {{ $('Basic LLM Chain').item.json.output.intencao }}  Prioridade: {{ $('Basic LLM Chain').item.json.output.prioridade }}  Resumo: {{ $('Basic LLM Chain').item.json.output.resumo }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        -96
+      ],
+      "id": "7452a21b-febe-477f-8a31-1a04ffc9f185",
+      "name": "Send a message",
+      "webhookId": "6f10aee6-6fdf-470f-b330-86cace611b2e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LvHmU2gZhFJ33spU",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a335bf7a-6b1d-4fd3-8f7b-c0e81a021096",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "81e87012a8268aed0a9a4b0df0766cc42711aa6a14af16ee069c867bf1f25cf9"
+  },
+  "nodeGroups": [],
+  "id": "qAqFB14rFgi51oYg",
+  "tags": []
+}
