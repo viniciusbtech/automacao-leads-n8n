@@ -358,19 +358,3 @@ Objetivo do projeto
 Este projeto foi desenvolvido como exercício prático de automação de processos empresariais utilizando Inteligência Artificial, explorando a integração de modelos de linguagem com ferramentas utilizadas em rotinas comerciais e administrativas.
 
 
-### O que eu colocaria como imagens
-
-Além do README, tire **três screenshots bons**:
-
-`workflow.png` — mostrando o fluxo inteiro:
-
-```text
-Webhook → LLM → Sheets → IF → Gmail
-
-google-sheets.png — mostrando uma linha preenchida automaticamente.
-
-email-notificacao.png — mostrando o e-mail que chegou.
-
-Isso faz muita diferença no GitHub, porque uma pessoa consegue entender o projeto sem precisar instalar o n8n.
-
-E há uma coisa que eu evitaria: não coloque a tentativa de Twilio/WhatsApp como funcionalidade atual. Coloque apenas em Possíveis evoluções, porque assim seu GitHub fica 100% fiel ao que realmente está funcionando.
